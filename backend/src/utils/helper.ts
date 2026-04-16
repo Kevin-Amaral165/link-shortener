@@ -1,5 +1,7 @@
 // Libraries
 import type { Response } from "express";
+import * as Sentry from "@sentry/node";
+import { ZodError } from "zod";
 
 // Middlewares
 import type { AuthRequest } from "../middlewares/auth.middleware.js";
@@ -53,11 +55,28 @@ export async function handleController<T>(
     return res.json(result);
   } catch (error: unknown) {
     console.error("Controller error:", error);
+
+    if (error instanceof ZodError) {
+      return res.status(400).json({
+        error: "Erro de validação",
+        details: error.issues.map((err) => ({
+          field: err.path.join("."),
+          message: err.message,
+        })),
+      });
+    }
+
     if (isHttpError(error)) {
+      if (error.status >= 500) {
+        Sentry.captureException(error);
+      }
+
       return res.status(error.status).json({
         error: error.message,
       });
     }
+
+    Sentry.captureException(error);
 
     return res.status(500).json({
       error: "Erro interno no servidor",
