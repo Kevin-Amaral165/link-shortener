@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 
 // Store
-import { useUserStore, type User } from "../../../store/user.store";
+import { useUserStore, type User } from "../../store/user.store";
 
 interface PublicRouteProps {
   children: ReactNode;

@@ -3,7 +3,7 @@ import type { JSX, ReactNode } from "react";
 import { Navigate } from "react-router-dom";
 
 // Store
-import { useUserStore, type User } from "../../../store/user.store.ts";
+import { useUserStore, type User } from "../../store/user.store.ts";
 
 interface ProtectedRouteProps {
   children: ReactNode;

@@ -8,7 +8,7 @@ import { Dashboard } from "./pages/dashboard/dashboard.tsx";
 
 // Routes
 import { ProtectedRoute } from "./components/routes/protectedRoute.tsx";
-import { PublicRoute } from "./components/routes/publicRoute.tsx";
+import {PublicRoute } from "./components/routes/publicRoute.tsx"
 
 export function App() {
   return (

@@ -6,9 +6,9 @@ import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { useUserStore } from "../../store/user.store.ts";
 
 // Components
-import ModalCustom from "../components/modal/modal.tsx";
-import TableCustom from "../components/table/table.tsx";
-import { CustomAlert } from "../components/alert/customAlert.tsx";
+import ModalCustom from "../../components/modal/modal.tsx";
+import TableCustom from "../../components/table/table.tsx";
+import { CustomAlert } from "../../components/alert/customAlert.tsx";
 
 // Types
 import type { DashboardState, LinkItem } from "./dashboard.types.ts";
@@ -20,7 +20,7 @@ import {
   FormWrapper,
   TableWrapper,
   StatsModalContent,
-} from "./dashboard.style";
+} from "./dashboard.style.ts";
 
 // Dashboard responsável por listar links, consumir API e gerenciar requisições HTTP (fetch/cliente)
 export function Dashboard(): JSX.Element | null {

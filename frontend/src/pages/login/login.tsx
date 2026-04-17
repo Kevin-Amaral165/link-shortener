@@ -6,15 +6,15 @@ import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { useUserStore, type User } from "../../store/user.store.ts";
 
 // Components
-import { Input } from "../components/input/input.tsx";
-import { Button } from "../components/button/button.tsx";
-import { CustomAlert } from "../components/alert/customAlert.tsx";
+import { Input } from "../../components/input/input.tsx";
+import { Button } from "../../components/button/button.tsx";
+import { CustomAlert } from "../../components/alert/customAlert.tsx";
 
 // Types
 import type { AuthFormState } from "./login.types.ts";
 
 // Styles
-import { Container, FormWrapper } from "../login/login.style.ts";
+import { Container, FormWrapper } from "./login.style.ts";
 
 // Página de autenticação responsável pelo login do usuário, realizando comunicação com a API de autenticação (/auth/login),
 export function LoginPage(): JSX.Element {

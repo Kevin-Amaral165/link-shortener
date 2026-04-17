@@ -6,12 +6,12 @@ import { useNavigate, type NavigateFunction } from "react-router-dom";
 import { useUserStore, type User } from "../../store/user.store.ts";
 
 // Components
-import { Input } from "../components/input/input.tsx";
-import { Button } from "../components/button/button.tsx";
-import { CustomAlert } from "../components/alert/customAlert.tsx";
+import { Input } from "../../components/input/input.tsx";
+import { Button } from "../../components/button/button.tsx";
+import { CustomAlert } from "../../components/alert/customAlert.tsx";
 
 // Styles
-import { Container, FormWrapper } from "../register/register.style.ts";
+import { Container, FormWrapper } from "./register.style.ts";
 
 interface RegisterState {
   name: string;

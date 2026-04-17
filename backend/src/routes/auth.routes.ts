@@ -8,7 +8,7 @@ import { AuthController } from "../controllers/auth.controller.js";
  * Auth Routes
  * Defines authentication endpoints (register, login)
  */
-export const authRouter = Router();
+export const authRouter: Router = Router();
 
 /**
  * Register a new user
