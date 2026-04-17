@@ -7,7 +7,7 @@ import { ZodError } from "zod";
 import type { AuthRequest } from "../middlewares/auth.middleware.js";
 
 /**
- * Padrão de erro HTTP
+ * Standard HTTP error shape
  */
 export type HttpError = {
   status: number;
@@ -15,7 +15,7 @@ export type HttpError = {
 };
 
 /**
- * Type guard para identificar erros HTTP
+ * Type guard to identify HTTP errors
  */
 function isHttpError(error: unknown): error is HttpError {
   return (
@@ -27,7 +27,7 @@ function isHttpError(error: unknown): error is HttpError {
 }
 
 /**
- * Tipo de retorno especial para redirect
+ * Redirect response type
  */
 type RedirectResponse = {
   redirect: string;
@@ -35,20 +35,18 @@ type RedirectResponse = {
 };
 
 /**
- * Helper para padronizar controllers
+ * Controller wrapper
+ * Standardizes API responses and error handling
  */
 export async function handleController<T>(
   fn: () => Promise<T | RedirectResponse>,
   res: Response
 ) {
   try {
-    const result = await fn();
+    const result: T | RedirectResponse = await fn();
 
-    if (
-      typeof result === "object" &&
-      result !== null &&
-      "redirect" in result
-    ) {
+    // Handle redirect responses
+    if (typeof result === "object" && result !== null && "redirect" in result) {
       return res.redirect(result.status ?? 302, result.redirect);
     }
 
@@ -56,9 +54,10 @@ export async function handleController<T>(
   } catch (error: unknown) {
     console.error("Controller error:", error);
 
+    // Validation errors (Zod)
     if (error instanceof ZodError) {
       return res.status(400).json({
-        error: "Erro de validação",
+        error: "Validation error",
         details: error.issues.map((err) => ({
           field: err.path.join("."),
           message: err.message,
@@ -66,6 +65,7 @@ export async function handleController<T>(
       });
     }
 
+    // Known HTTP errors
     if (isHttpError(error)) {
       if (error.status >= 500) {
         Sentry.captureException(error);
@@ -76,22 +76,23 @@ export async function handleController<T>(
       });
     }
 
+    // Unexpected errors
     Sentry.captureException(error);
 
     return res.status(500).json({
-      error: "Erro interno no servidor",
+      error: "Internal server error",
     });
   }
 }
 
 /**
- * Extrai e valida o userId do request autenticado
+ * Extract and validate authenticated userId
  */
 export function parseUserId(req: AuthRequest): number {
   if (req.userId === undefined || req.userId === null) {
     throw {
       status: 401,
-      message: "Usuário não autenticado",
+      message: "User not authenticated",
     } satisfies HttpError;
   }
 
@@ -103,7 +104,7 @@ export function parseUserId(req: AuthRequest): number {
   if (isNaN(userId)) {
     throw {
       status: 400,
-      message: "User ID inválido",
+      message: "Invalid user ID",
     } satisfies HttpError;
   }
 
@@ -111,15 +112,15 @@ export function parseUserId(req: AuthRequest): number {
 }
 
 /**
- * Extrai e valida o linkId da rota
+ * Extract and validate link ID from route params
  */
 export function parseLinkId(req: AuthRequest): number {
-  const linkId = parseInt(String(req.params.id), 10);
+  const linkId: number = parseInt(String(req.params.id), 10);
 
   if (isNaN(linkId)) {
     throw {
       status: 400,
-      message: "ID do link inválido",
+      message: "Invalid link ID",
     } satisfies HttpError;
   }
 

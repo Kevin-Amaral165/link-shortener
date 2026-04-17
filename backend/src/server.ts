@@ -1,11 +1,11 @@
-import express, { type Request, type Response, type NextFunction } from "express";
+import express from "express";
+import type { Request, Response, NextFunction } from "express";
 import cors from "cors";
-import dotenv from "dotenv";
 import * as Sentry from "@sentry/node";
+
 import { initSentry } from "./config/sentry.js";
 import { authRouter } from "./routes/auth.routes.js";
 
-dotenv.config();
 initSentry();
 
 const app = express();
@@ -13,25 +13,25 @@ const app = express();
 app.use(cors());
 app.use(express.json());
 
-app.get("/debug-sentry", (_req: Request, _res: Response) => {
+// routes
+app.use("/auth", authRouter);
+
+// test route
+app.get("/debug-sentry", () => {
   throw new Error("Teste Sentry Backend 🚨");
 });
 
-app.use("/auth", authRouter);
-// app.use("/links", linkRouter);
+// ❗ error handler GLOBAL (único necessário agora)
+app.use((err: unknown, _req: Request, res: Response, _next: NextFunction) => {
+  Sentry.captureException(err); // 🔥 envio manual
 
-app.use(
-  (err: unknown, _req: Request, res: Response, _next: NextFunction) => {
-    console.error("Unhandled error:", err);
+  console.error("Global error:", err);
 
-    Sentry.captureException(err);
+  return res.status(500).json({
+    error: "Erro interno no servidor",
+  });
+});
 
-    return res.status(500).json({
-      error: "Erro interno no servidor",
-    });
-  }
-);
-
-app.listen(process.env.PORT, () => {
-  console.log(`Servidor rodando na porta ${process.env.PORT}`);
+app.listen(3001, () => {
+  console.log("Server running on port 3001");
 });

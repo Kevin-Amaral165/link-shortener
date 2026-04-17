@@ -13,19 +13,30 @@ import { generateUniqueCode } from "../utils/code.util.js";
 // Errors
 import { NotFoundError } from "../errors/error.js";
 
-const linkRepository = new LinkRepository();
-
+/**
+ * Link Service
+ * Handles business logic for links (create, list, stats, delete)
+ */
 export class LinkService {
-  static async create(userId: number, url: string): Promise<Link> {
-    const code = await generateUniqueCode(linkRepository);
+  // Encapsulated repository instance
+  private static readonly linkRepository = new LinkRepository();
 
-    return linkRepository.create({
+  /**
+   * Create a new shortened link
+   */
+  static async create(userId: number, url: string): Promise<Link> {
+    const code: string = await generateUniqueCode(this.linkRepository);
+
+    return this.linkRepository.create({
       user_id: userId,
       original_url: url,
       short_code: code,
     });
   }
 
+  /**
+   * List paginated links for a user
+   */
   static async list(
     userId: number,
     page = 1,
@@ -34,8 +45,8 @@ export class LinkService {
     const skip = (page - 1) * limit;
 
     const [links, total] = await Promise.all([
-      linkRepository.findByUser(userId, skip, limit),
-      linkRepository.countByUser(userId),
+      this.linkRepository.findByUser(userId, skip, limit),
+      this.linkRepository.countByUser(userId),
     ]);
 
     return {
@@ -48,25 +59,31 @@ export class LinkService {
     };
   }
 
+  /**
+   * Delete a link if it belongs to the user
+   */
   static async delete(userId: number, linkId: number): Promise<void> {
-    const result = await linkRepository.delete(userId, linkId);
+    const result: { count: number } = await this.linkRepository.delete(userId, linkId);
 
     if (result.count === 0) {
-      throw new NotFoundError("Link não encontrado");
+      throw new NotFoundError("Link not found");
     }
   }
 
+  /**
+   * Get analytics for a specific link
+   */
   static async stats(
     userId: number,
     linkId: number
   ): Promise<LinkStatsResponse> {
-    const link = await linkRepository.findById(userId, linkId);
+    const link = await this.linkRepository.findById(userId, linkId);
 
     if (!link) {
-      throw new NotFoundError("Link não encontrado");
+      throw new NotFoundError("Link not found");
     }
 
-    const total = link.clicks.length;
+    const total: number = link.clicks.length;
 
     const last7Days: Record<string, number> = {};
 

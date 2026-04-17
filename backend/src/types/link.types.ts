@@ -1,3 +1,4 @@
+// Libraries
 import type { Link } from "@prisma/client/edge";
 
 export interface CreateLinkInput {

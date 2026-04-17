@@ -11,26 +11,36 @@ import type { RegisterInput, LoginInput, AuthResponse } from "../types/auth.type
 // Errors
 import { BadRequestError, UnauthorizedError } from "../errors/error.js";
 
-const JWT_SECRET = process.env.JWT_SECRET!;
+const JWT_SECRET: string = process.env.JWT_SECRET!;
 
-const generateToken = (userId: number): string => {
+/**
+ * Generates a JWT token for authenticated users
+ */
+const generateToken: (userId: number) => string = (userId: number) => {
   return jwt.sign({ userId }, JWT_SECRET, { expiresIn: "1d" });
 };
 
+/**
+ * Auth Service
+ * Handles authentication business logic (register & login)
+ */
 export class AuthService {
-  private static userRepo = new AuthRepository();
+  private static userRepo: AuthRepository = new AuthRepository();
 
+  /**
+   * Register a new user
+   */
   static async register(input: RegisterInput): Promise<AuthResponse> {
-    const email = input.email.toLowerCase().trim();
+    const email: string = input.email.toLowerCase().trim();
 
-    const existingUser = await this.userRepo.findByEmail(email);
+    const existingUser: { id: number } | null = await this.userRepo.findByEmail(email);
     if (existingUser) {
-      throw new BadRequestError("E-mail já está em uso");
+      throw new BadRequestError("Email already in use");
     }
 
-    const passwordHash = await bcrypt.hash(input.password, 10);
+    const passwordHash: string = await bcrypt.hash(input.password, 10);
 
-    const user = await this.userRepo.create({
+    const user: { id: number } = await this.userRepo.create({
       name: input.name,
       email,
       password_hash: passwordHash,
@@ -41,13 +51,16 @@ export class AuthService {
     };
   }
 
+  /**
+   * Authenticate user and return JWT token
+   */
   static async login(input: LoginInput): Promise<AuthResponse> {
-    const email = input.email.toLowerCase().trim();
+    const email: string = input.email.toLowerCase().trim();
 
-    const user = await this.userRepo.findByEmail(email);
+    const user: { id: number; password_hash: string } | null = await this.userRepo.findByEmail(email);
 
     if (!user) {
-      throw new UnauthorizedError("E-mail ou senha inválidos");
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     const isValid = await bcrypt.compare(
@@ -56,7 +69,7 @@ export class AuthService {
     );
 
     if (!isValid) {
-      throw new UnauthorizedError("E-mail ou senha inválidos");
+      throw new UnauthorizedError("Invalid email or password");
     }
 
     return {
